@@ -1,0 +1,152 @@
+GIT WORKFLOW COMMANDS (PowerShell)
+=================================
+
+Run these commands in the folder where you want the repository.
+This guide does not execute commands for you. Replace placeholders such as
+<YOUR_USERNAME> and <REPO_URL> before running commands.
+
+1. Open PowerShell in this folder
+---------------------------------
+
+Set-Location "C:\Users\fs\Desktop\05BT"
+
+2. Initialize Git and make the first commit
+-------------------------------------------
+
+git init -b main
+git status
+git add .
+git commit -m "Initial commit"
+
+If Git asks you to identify yourself, configure your name and email:
+
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+
+Then retry the commit.
+
+3. Create a remote repository and connect it
+--------------------------------------------
+
+Create an empty repository on GitHub (or your Git hosting service). Copy its
+HTTPS or SSH URL, then set it as origin:
+
+git remote add origin <YOUR_REPO_URL>
+git remote -v
+git push -u origin main
+
+Example URL format:
+https://github.com/<YOUR_USERNAME>/<REPO_NAME>.git
+
+4. Fork workflow (when contributing to someone else's repository)
+-----------------------------------------------------------------
+
+First use the hosting service's website to create a fork under your account.
+Set origin to your fork and upstream to the original repository:
+
+git remote add origin <YOUR_FORK_URL>
+git remote add upstream <ORIGINAL_REPO_URL>
+git remote -v
+
+If origin is already set to the original repository, change it to your fork:
+
+git remote set-url origin <YOUR_FORK_URL>
+git remote add upstream <ORIGINAL_REPO_URL>
+
+Get the original repository's branches:
+
+git fetch upstream
+
+5. Create, switch, and push a branch
+------------------------------------
+
+git switch -c feature/my-change
+git status
+git add .
+git commit -m "Describe my change"
+git push -u origin feature/my-change
+
+Switch back to main and update it from your fork:
+
+git switch main
+git pull --ff-only origin main
+
+6. Pull updates from the original repository (fork workflow)
+------------------------------------------------------------
+
+git fetch upstream
+git switch main
+git merge upstream/main
+git push origin main
+
+To update your feature branch with the latest original main using rebase:
+
+git switch feature/my-change
+git fetch upstream
+git rebase upstream/main
+git push --force-with-lease origin feature/my-change
+
+Only rebase your own feature branch. Do not force-push shared branches.
+If a conflict occurs, edit the conflicted files, then run:
+
+git status
+git add <RESOLVED_FILE>
+git rebase --continue
+
+To cancel the rebase and return to its starting state:
+
+git rebase --abort
+
+7. Merge a branch into main
+---------------------------
+
+Update main, then merge the feature branch:
+
+git switch main
+git pull --ff-only origin main
+git merge --no-ff feature/my-change
+git push origin main
+
+If the merge has conflicts, resolve the files, then run:
+
+git status
+git add <RESOLVED_FILE>
+git commit
+
+To cancel a merge before it is committed:
+
+git merge --abort
+
+8. Revert a commit safely
+-------------------------
+
+Find the commit hash and review the change:
+
+git log --oneline
+git show <COMMIT_HASH>
+
+Create a new commit that undoes that commit:
+
+git revert <COMMIT_HASH>
+git push origin main
+
+Revert is generally safer than resetting a commit that has already been pushed.
+For a merge commit, inspect it first and choose the correct mainline parent:
+
+git revert -m 1 <MERGE_COMMIT_HASH>
+
+9. Handy checks
+---------------
+
+git status
+git branch --all
+git remote -v
+git log --oneline --graph --decorate --all
+
+Notes
+-----
+- Do not type the angle-bracket placeholders literally; replace them first.
+- Forking is performed on the hosting service website, not by a git command.
+- Use git pull --ff-only when you want to avoid creating an unexpected merge.
+- Confirm the current branch and remote with git status and git remote -v
+  before pushing.
